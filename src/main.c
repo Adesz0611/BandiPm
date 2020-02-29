@@ -2,9 +2,11 @@
 #include "main.h"
 #include "init.h"
 #include "draw.h"
-#include "structs.h"
+#include "input.h"
 
-int yMax, xMax, winyMax, winxMax;
+int yMax, xMax, yWinMax, xWinMax;
+char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
+int choice, highlight = 0;
 
 int main (int argc, const char *argv[]) {
 	// Initialize
@@ -16,7 +18,7 @@ int main (int argc, const char *argv[]) {
 	
 	// Create main window
 	WINDOW *win = newwin(yMax-2, xMax-6, 1, 3);
-	winyMax = getmaxyx(win, winyMax, winxMax);
+	getmaxyx(win, yWinMax, xWinMax);
 
 	logo.filename = "logo.txt";
 	draw_logo(win, xMax);
@@ -26,9 +28,22 @@ int main (int argc, const char *argv[]) {
 	refresh();
 	wrefresh(win);
 
+	keypad(win, true);
+
+	// Menu loop
+	while(1)
+	{
+		draw_menu(win, highlight, choices, xWinMax);
+		choice = wgetch(win);
+		input(choice, &highlight);
+		if(choice == 10)
+			{
+				if(choices[highlight] == choices[3])
+					break;
+			}
+	}
+
 	// Clear and close
-	getch();
-	getch();
 	endwin();
 
 	return 0;
