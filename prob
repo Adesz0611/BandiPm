@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+use strict;
+
+use Time::HiRes qw/gettimeofday/;
+
+
+my $x = gettimeofday();
+
+printf "%f\n", $x;
+
