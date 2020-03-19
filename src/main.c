@@ -12,7 +12,7 @@ int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
 int choice, highlight = 0;
-bool askbefq = false;
+bool askbefq = false, askbefq_options;
 
 int main (int argc, const char *argv[]) {
 	// Initialize
@@ -30,7 +30,8 @@ int main (int argc, const char *argv[]) {
 	}
 	fread(&askbefq, sizeof(askbefq), 1, conf);
 	fclose(conf);
-	printw("%d\n", askbefq);
+
+	askbefq_options = askbefq;
 
 	// Return the max size of terminal
 	getmaxyx(stdscr, yMax, xMax);
@@ -158,21 +159,64 @@ int main (int argc, const char *argv[]) {
 
 						// Draw the "options" text
 						mvwprintw(options_win, 2, (int)(xMax / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
-						mvwprintw(options_win, 4, 3, "Ask before quit: ");
-						mvwprintw(options_win, 5, 3, "Beat button: ");
+						mvwprintw(options_win, 4, 3, "Ask before quit:");
+						mvwprintw(options_win, 5, 3, "Beat button:");
+
+						highlight = 0;
+						keypad(options_win, true);
+
+						askbefq_options = askbefq;
 
 						wrefresh(options_win);
 						refresh();
 						while(1)
 						{
+							draw_options(options_win, highlight, askbefq_options, (int)(yMax / 2), (int)(xMax / 2));
 							choice = wgetch(options_win);
-							if(choice == KEY_Q)
+							input_options(choice, &highlight, &askbefq_options);
+							
+							if(choice == ENTER)
+							{
+								// If press "Apply"
+								if(highlight == 2)
+								{
+									askbefq = askbefq_options;
+									conf = fopen("bpmprog.dat", "wb");
+									fwrite(&askbefq, sizeof(askbefq), 1, conf);
+									fclose(conf);
+									
+									// TODO függvényben megcsinálni!
+									wclear(options_win);
+									wrefresh(options_win);
+									draw_logo(win, xMax);
+									box(win, 0, 0);
+									refresh();
+									highlight = 1;
+									break;
+
+								}
+
+								// If press "Quit"
+								else if(highlight == 3)
 								{
 									wclear(options_win);
 									wrefresh(options_win);
 									draw_logo(win, xMax);
 									box(win, 0, 0);
 									refresh();
+									highlight = 1;
+									break;
+
+								}
+							}
+							else if(choice == KEY_Q)
+								{
+									wclear(options_win);
+									wrefresh(options_win);
+									draw_logo(win, xMax);
+									box(win, 0, 0);
+									refresh();
+									highlight = 1;
 									break;
 								}
 						}
@@ -183,5 +227,6 @@ int main (int argc, const char *argv[]) {
 	// Clear and close
 	endwin();
 
+	printf("%d\n", askbefq_options);
 	return 0;
 }

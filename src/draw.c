@@ -55,6 +55,40 @@ void draw_quitmenu(WINDOW *win, int highlight, int yAsk, int xAsk)
 	wattroff(win, A_REVERSE);
 }
 
+void draw_options(WINDOW *win, int highlight, bool askbefq, int yMax, int xMax)
+{
+	// "Ask before quit" option
+	if(highlight == 0)
+	{	
+		for(int i = 0; i < 7; i++)
+			mvwprintw(win, 4, 23 + i, " ");
+		wattron(win, A_REVERSE);
+	}
+	
+	if(askbefq)
+		mvwprintw(win, 4, 23, "<True>");
+	else
+		mvwprintw(win, 4, 23, "<False>");
+	wattroff(win, A_REVERSE);
+	
+	if(highlight == 1)
+		wattron(win, A_REVERSE);
+	mvwprintw(win, 5, 23, "ENTER");
+	wattroff(win, A_REVERSE);
+
+	if(highlight == 2)
+		wattron(win, A_REVERSE);
+	mvwprintw(win, yMax - 2, xMax - 13, "Apply");
+	wattroff(win, A_REVERSE);
+
+	if(highlight == 3)
+		wattron(win, A_REVERSE);
+	mvwprintw(win, yMax - 2, xMax - 6, "Quit");
+	wattroff(win, A_REVERSE);
+
+
+}
+
 void draw_creator(WINDOW *win, int yWinMax, int xWinMax, char *copyright)
 {
 	mvwprintw(win, yWinMax - 2, xWinMax - strlen(copyright) - 2, copyright);
