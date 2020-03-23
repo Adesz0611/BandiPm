@@ -11,10 +11,11 @@
 int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
-int choice, highlight = 0;
+int choice, highlight = 0, beatbutton, beatbutton_options;
 bool askbefq = false, askbefq_options;
 
-int main (int argc, const char *argv[]) {
+int main (int argc, const char *argv[]) 
+{
 	// Initialize
 	init_screen();
 	init_checkTerminalHasColors();
@@ -24,14 +25,19 @@ int main (int argc, const char *argv[]) {
 	if((conf = fopen("bpmprog.dat", "rb")) == NULL)
 	{
 		conf = fopen("bpmprog.dat", "wb");
-		int askbee = 0;
+		bool askbee = 0;
+		beatbutton = ENTER;
 		fwrite(&askbee, sizeof(askbee), 1, conf);
+		fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
 		fclose(conf);
+		conf = fopen("bpmprog.dat", "rb");
 	}
 	fread(&askbefq, sizeof(askbefq), 1, conf);
+	fread(&beatbutton, sizeof(beatbutton), 1, conf);
 	fclose(conf);
 
 	askbefq_options = askbefq;
+	beatbutton_options = beatbutton;
 
 	// Return the max size of terminal
 	getmaxyx(stdscr, yMax, xMax);
@@ -171,7 +177,7 @@ int main (int argc, const char *argv[]) {
 						refresh();
 						while(1)
 						{
-							draw_options(options_win, highlight, askbefq_options, (int)(yMax / 2), (int)(xMax / 2));
+							draw_options(options_win, highlight, askbefq_options, (int)(yMax / 2), (int)(xMax / 2), beatbutton_options);
 							choice = wgetch(options_win);
 							input_options(choice, &highlight, &askbefq_options);
 							
@@ -181,8 +187,10 @@ int main (int argc, const char *argv[]) {
 								if(highlight == 2)
 								{
 									askbefq = askbefq_options;
+									beatbutton = beatbutton_options;
 									conf = fopen("bpmprog.dat", "wb");
 									fwrite(&askbefq, sizeof(askbefq), 1, conf);
+									fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
 									fclose(conf);
 									
 									// TODO függvényben megcsinálni!
@@ -208,6 +216,19 @@ int main (int argc, const char *argv[]) {
 									break;
 
 								}
+
+								// If press "Beatbutton"
+								else if(highlight == 1)
+								{
+									WINDOW *bb = newwin((int)(yMax * 0.3), (int)(xMax * 0.3), (int)(yMax * 0.35), (int)(xMax * 0.35));
+									box(bb, 0, 0);
+									mvwprintw(bb, 1, (int)(xMax * 0.3 / 2 - strlen("Press any key...") / 2), "Press any key...");
+									wrefresh(bb);
+									refresh();
+									beatbutton_options = wgetch(bb);
+									wclear(bb);
+									wrefresh(bb);
+								}
 							}
 							else if(choice == KEY_Q)
 								{
@@ -227,6 +248,6 @@ int main (int argc, const char *argv[]) {
 	// Clear and close
 	endwin();
 
-	printf("%d\n", askbefq_options);
+	printf("A beatbutton értéke: %d\n", beatbutton);
 	return 0;
-}
+ }

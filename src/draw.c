@@ -55,7 +55,7 @@ void draw_quitmenu(WINDOW *win, int highlight, int yAsk, int xAsk)
 	wattroff(win, A_REVERSE);
 }
 
-void draw_options(WINDOW *win, int highlight, bool askbefq, int yMax, int xMax)
+void draw_options(WINDOW *win, int highlight, bool askbefq, int yMax, int xMax, int beatbutton_options)
 {
 	// "Ask before quit" option
 	if(highlight == 0)
@@ -73,7 +73,10 @@ void draw_options(WINDOW *win, int highlight, bool askbefq, int yMax, int xMax)
 	
 	if(highlight == 1)
 		wattron(win, A_REVERSE);
-	mvwprintw(win, 5, 23, "ENTER");
+	if(beatbutton_options == 10) // 10 = ENTER
+		mvwprintw(win, 5, 23, "ENTER (%d)", beatbutton_options);
+	else
+		mvwprintw(win, 5, 23, "%c (%d)", (int)beatbutton_options, beatbutton_options);
 	wattroff(win, A_REVERSE);
 
 	if(highlight == 2)
