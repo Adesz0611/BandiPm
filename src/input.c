@@ -1,5 +1,6 @@
 /* Created by Adesz */
 #include "input.h"
+#include <sys/time.h>
 #include <stdint.h>
 
 void input(int choice, int *highlight)
@@ -69,4 +70,14 @@ void input_options(int choice, int *highlight, bool *askbefq)
 					*highlight = *highlight + 1;
 				break;
 		}
+}
+void input_bpm(struct timeval start, struct timeval stop, float *millisec, int *bpm, int ertek[], int i, WINDOW *bpm_win)
+{
+	gettimeofday(&start, NULL);
+    wgetch(bpm_win);
+    gettimeofday(&stop, NULL);
+    *millisec = (float)(((long)((stop.tv_sec - start.tv_sec) * 1000000) + stop.tv_usec) - start.tv_usec);
+    *millisec /= 1000000;
+    *bpm = 60 / *millisec;
+    ertek[i] = *bpm;
 }
