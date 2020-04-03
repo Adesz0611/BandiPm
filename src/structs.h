@@ -1,4 +1,4 @@
 #pragma once
 typedef struct _Logo {
-	char *filename;
+    char *filename;
 } Logo;

@@ -12,7 +12,7 @@
 int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
-int choice, highlight = 0, beatbutton, beatbutton_options;
+int choice, highlight = 0, beatbutton = ENTER, beatbutton_options;
 bool askbefq = false, askbefq_options;
 struct timeval start, stop;
 int ertek[10], bpmInt, i = 0, sum, a;
@@ -29,20 +29,10 @@ int main (int argc, const char *argv[])
     init_checkTerminalHasColors();
 
     // Config file
-    FILE *conf;
-    if((conf = fopen("bpmprog.dat", "rb")) == NULL)
-    {
-        conf = fopen("bpmprog.dat", "wb");
-        bool askbee = 0;
-        beatbutton = ENTER;
-        fwrite(&askbee, sizeof(askbee), 1, conf);
-        fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
-        fclose(conf);
-        conf = fopen("bpmprog.dat", "rb");
-    }
-    fread(&askbefq, sizeof(askbefq), 1, conf);
-    fread(&beatbutton, sizeof(beatbutton), 1, conf);
-    fclose(conf);
+    FILE *conf = malloc(sizeof(*conf));
+
+    //Load the file to the buffer
+    init_configFile(conf, &askbefq, &beatbutton);
 
     askbefq_options = askbefq;
     beatbutton_options = beatbutton;
@@ -51,11 +41,7 @@ int main (int argc, const char *argv[])
     getmaxyx(stdscr, yMax, xMax);
 
     // Check terminal size
-    if(yMax < 20 || xMax < 75) {
-        endwin();
-        printf("Terminal size is less than the min size!\n");
-        exit(1);
-    }
+    init_checkTerminalSize(yMax, xMax);
 
     // Create main window
     WINDOW *win = newwin(yMax-2, xMax-6, 1, 3);
@@ -106,19 +92,12 @@ int main (int argc, const char *argv[])
                         {
                             // If press "Igen"
                             if(highlight == 0)
-                            {
-                                endwin();
-                                exit(1);
-                            }
+                                init_cleanup();
 
                             // If press "Nem"
                             else if(highlight == 1)
                             {
-                                wclear(kilepes);
-                                wrefresh(kilepes);
-                                draw_logo(win, xMax);
-                                box(win, 0, 0);
-                                refresh();
+                                input_backToMain(kilepes, win, xMax);
                                 highlight = 3;
                                 break;
                             }
@@ -127,7 +106,7 @@ int main (int argc, const char *argv[])
                 }
                 else
                 {
-                    break;
+                    init_cleanup();
                 }
             }
 
@@ -154,11 +133,7 @@ int main (int argc, const char *argv[])
                     choice = wgetch(about_win);
                     if(choice == KEY_Q)
                     {
-                        wclear(about_win);
-                        wrefresh(about_win);
-                        draw_logo(win, xMax);
-                        box(win, 0, 0);
-                        refresh();
+                        input_backToMain(about_win, win, xMax);
                         break;
                     }
                 }
@@ -183,7 +158,9 @@ int main (int argc, const char *argv[])
                 highlight = 0;
                 keypad(options_win, true);
 
+                // Buffer = config's value
                 askbefq_options = askbefq;
+                beatbutton_options = beatbutton;
 
                 wrefresh(options_win);
                 refresh();
@@ -206,12 +183,7 @@ int main (int argc, const char *argv[])
                             fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
                             fclose(conf);
 
-                            // TODO függvényben megcsinálni!
-                            wclear(options_win);
-                            wrefresh(options_win);
-                            draw_logo(win, xMax);
-                            box(win, 0, 0);
-                            refresh();
+                            input_backToMain(options_win, win, xMax);
                             highlight = 1;
                             break;
 
@@ -220,11 +192,7 @@ int main (int argc, const char *argv[])
                         // If press "Quit"
                         else if(highlight == 3)
                         {
-                            wclear(options_win);
-                            wrefresh(options_win);
-                            draw_logo(win, xMax);
-                            box(win, 0, 0);
-                            refresh();
+                            input_backToMain(options_win, win, xMax);
                             highlight = 1;
                             break;
                         }
@@ -244,18 +212,14 @@ int main (int argc, const char *argv[])
                     }
                         else if(choice == KEY_Q)
                         {
-                            wclear(options_win);
-                            wrefresh(options_win);
-                            draw_logo(win, xMax);
-                            box(win, 0, 0);
-                            refresh();
+                            input_backToMain(options_win, win, xMax);
                             highlight = 1;
                             break;
                         }
                     }
                 }
 
-                // If you press "Start"
+            // If you press "Start"
             else if(choices[highlight] == choices[0])
             {
                 WINDOW *bpm = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
@@ -296,8 +260,6 @@ int main (int argc, const char *argv[])
     }
 
     // Clear and close
-    endwin();
-
-    printf("A beatbutton értéke: %d\n", beatbutton);
+    init_cleanup();
     return 0;
 }
