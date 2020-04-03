@@ -1,7 +1,7 @@
 /* Created by Adesz */
 #include "init.h"
 
-void init_screen()
+void init_screen(void)
 {
     initscr();
     cbreak();
@@ -9,7 +9,7 @@ void init_screen()
     curs_set(0);
 }
 
-void init_checkTerminalHasColors()
+void init_checkTerminalHasColors(void)
 {
     if(!has_colors())
     {
@@ -19,7 +19,7 @@ void init_checkTerminalHasColors()
     }
 }
 
-void init_cleanup()
+void init_cleanup(void)
 {
     endwin();
     exit(EXIT_SUCCESS);
