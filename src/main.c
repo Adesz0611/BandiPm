@@ -119,7 +119,7 @@ int main (int argc, const char *argv[])
             {
                 WINDOW *about_win = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
                 box(about_win, 0, 0);
-                char *about_text = "Simple BPM porogram";
+                char *about_text = "Simple BPM program";
                 
                 // Draw "About" title
                 wattron(about_win, A_REVERSE);
