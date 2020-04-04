@@ -73,15 +73,41 @@ void input_options(int choice, int *highlight, bool *askbefq)
     }
 }
 
-void input_bpm(struct timeval start, struct timeval stop, float *millisec, int *bpm, int ertek[], int i, WINDOW *bpm_win)
+int input_fillBpmArray(int *i, struct timeval start, struct timeval stop, float *millisec, int *bpmInt, int (*ertek)[], WINDOW *bpm_win)
+{
+    for(*i = 9; *i > -1; (*i)--)
+    {
+        if(input_bpm(start, stop, millisec, bpmInt, ertek, *i, bpm_win))
+            return 1;
+        mvwprintw(bpm_win, 4, 7, "SZAMOLUNK! (%d)", *i);
+    }
+
+    return 0;
+}
+
+int input_bpm(struct timeval start, struct timeval stop, float *millisec, int *bpm, int (*ertek)[], int i, WINDOW *bpm_win)
 {
     gettimeofday(&start, NULL);
-    wgetch(bpm_win);
+    //while(wgetch(bpm_win) != 10);
+    while(1)
+    {
+        switch(wgetch(bpm_win))
+        {
+            case 10:
+                break;
+            case (int)'q':
+                return 1;
+            default:
+                continue;
+        }
+        break;
+    }
     gettimeofday(&stop, NULL);
     *millisec = (float)(((long)((stop.tv_sec - start.tv_sec) * 1000000) + stop.tv_usec) - start.tv_usec);
     *millisec /= 1000000;
     *bpm = 60 / *millisec;
-    ertek[i] = *bpm;
+    (*ertek)[i] = *bpm;
+    return 0;
 }
 
 void input_backToMain(WINDOW *actualWin, WINDOW *mainWin, int main_xMax)

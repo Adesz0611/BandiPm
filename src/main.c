@@ -3,11 +3,15 @@
 #include "init.h"
 #include "draw.h"
 #include "input.h"
+#include "types.h"
 #include <stdbool.h>
 
 #define ENTER 10
 #define KEY_Q 113
 #define ARRAY_SIZE(x) sizeof(x) / sizeof(x[0])
+
+#define SUCCESS 0
+#define FAIL -1
 
 int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
@@ -33,7 +37,6 @@ int main (int argc, const char *argv[])
 
     //Load the file to the buffer
     init_configFile(conf, &askbefq, &beatbutton);
-
     askbefq_options = askbefq;
     beatbutton_options = beatbutton;
 
@@ -61,6 +64,7 @@ int main (int argc, const char *argv[])
     // Menu loop
     while(1)
     {
+        //vege:
         draw_menu(win, highlight, choices, xWinMax, 4);
         choice = wgetch(win);
         input(choice, &highlight);
@@ -224,36 +228,56 @@ int main (int argc, const char *argv[])
             {
                 WINDOW *bpm = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
                 box(bpm, 0, 0);
-     
-                // Draw "BPM" title
+ 
+                // Draw "BPM" window title
                 wattron(bpm, A_REVERSE);
                 mvwprintw(bpm, 0, (int)(xMax / 2 / 2 - strlen(" BPM ") / 2), " BPM ");
                 wattroff(bpm, A_REVERSE);
 
+                // Draw window content
                 mvwprintw(bpm, 2, (int)(xMax / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
                 mvwprintw(bpm, 4, 2, "BPM: ");
 
                 keypad(bpm, true);
 
                 wgetch(bpm);
-                for(i = 9; i > -1; i--)
+                /*for(i = 9; i > -1; i--)
                 {
-                    input_bpm(start, stop, &millisec, &bpmInt, ertek, i, bpm);
+                    if(input_bpm(start, stop, &millisec, &bpmInt, ertek, i, bpm))
+                    {
+                        input_backToMain(bpm, win, xMax);
+                        highlight = 0;
+                        // TODO megmutatni a Bandinak
+                        goto vege;
+                    }
                     mvwprintw(bpm, 4, 7, "SZAMOLUNK! (%d)", i);
+                }*/
+                if(!input_fillBpmArray(&i, start, stop, &millisec, &bpmInt, &ertek, bpm))
+                {               
+                    i = 0;
+                    while(1)
+                    {    
+                        if(input_bpm(start, stop, &millisec, &bpmInt, &ertek, i, bpm))
+                        {
+                            input_backToMain(bpm, win, xMax);
+                            highlight = 0;
+                            break;
+                        }
+                        qsort(ertek, ARRAY_SIZE(ertek), sizeof(ertek[0]), compare);
+                        sum = 0;
+                        for(a = 3; a < 7; a++)
+                            sum += ertek[a];
+                        mvwprintw(bpm, 4, 7, "%d            ", sum / 4);
+                        i++;
+                        if(i == 10)
+                            i = 0;
+                    }
                 }
 
-                i = 0;
-                while(1)
-                {    
-                    input_bpm(start, stop, &millisec, &bpmInt, ertek, i, bpm);
-                    qsort(ertek, ARRAY_SIZE(ertek), sizeof(ertek[0]), compare);
-                    sum = 0;
-                    for(a = 3; a < 7; a++)
-                        sum += ertek[a];
-                    mvwprintw(bpm, 4, 7, "%d            ", sum / 4);
-                    i++;
-                    if(i == 10)
-                        i = 0;
+                else
+                {
+                    input_backToMain(bpm, win, xMax);
+                    highlight = 0;
                 }
             }
         }
