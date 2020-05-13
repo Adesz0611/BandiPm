@@ -22,6 +22,12 @@ void draw_logo(WINDOW *win, int xMax)
     }
 }
 
+void draw_resize(int signr)
+{
+    
+    //exit(EXIT_FAILURE);    
+}
+
 void draw_printMiddle(char *text, int y, WINDOW *win, int xWinMax)
 {
     mvwprintw(win, y, xWinMax / 2 - strlen(text) / 2, text);

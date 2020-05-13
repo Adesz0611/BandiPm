@@ -1,15 +1,17 @@
-CC = gcc
-CFLAGS = -Wall -lncursesw -I.
 PROGNAME = bandipm
-all: $(PROGNAME)
+CC = gcc
+CFLAGS = -Wall -Wextra -lncursesw
 
 OBJ+=src/main.o
 OBJ+=src/init.o
 OBJ+=src/draw.o
 OBJ+=src/input.o
 
+all: $(PROGNAME)
+
 $(PROGNAME): $(OBJ)
 	$(CC) -o $(PROGNAME) $(OBJ) $(CFLAGS)
 
+.PHONY: clean
 clean:
-	rm -f $(PROGNAME) src/*.o
+	rm -f $(PROGNAME) $(OBJ)

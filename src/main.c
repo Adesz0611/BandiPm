@@ -1,4 +1,8 @@
-/* Created by Adesz */
+/*
+ *    (C) 2020 Adam Hunyadvari
+ *        <adesz@jss.hu>
+ *
+ */
 #include "main.h"
 #include "init.h"
 #include "draw.h"
@@ -6,6 +10,10 @@
 #include "types.h"
 #include <stdbool.h>
 #include <locale.h>
+
+#ifdef __unix__
+#include <signal.h>
+#endif
 
 #define ENTER 10
 #define KEY_Q 113
@@ -25,6 +33,7 @@ float millisec;
 
 wchar_t choice;
 
+static void emergency_exit(int signr);
 static int compare (const void *p1, const void *p2) {
     return *(int*)p1 - *(int*)p2;
 }
@@ -32,6 +41,16 @@ static int compare (const void *p1, const void *p2) {
 int main (int argc, const char *argv[]) 
 {
     setlocale(LC_ALL, "");
+    atexit(clean);
+
+#ifdef __unix__
+#ifdef SIGWINCH
+    signal(SIGWINCH, draw_resize);
+#endif
+    signal(SIGHUP, emergency_exit);
+    signal(SIGTERM, emergency_exit);
+#endif
+
     // Initialize
     init_screen();
     init_checkTerminalHasColors();
@@ -278,4 +297,9 @@ int main (int argc, const char *argv[])
     // Clear and close
     init_cleanup();
     return 0;
+}
+
+static void emergency_exit(int signr)
+{
+    exit(EXIT_FAILURE);
 }
