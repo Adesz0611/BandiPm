@@ -5,6 +5,7 @@
 #include "input.h"
 #include "types.h"
 #include <stdbool.h>
+#include <locale.h>
 
 #define ENTER 10
 #define KEY_Q 113
@@ -16,11 +17,13 @@
 int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
-int choice, highlight = 0, beatbutton = ENTER, beatbutton_options;
+int highlight = 0, beatbutton = ENTER, beatbutton_options;
 bool askbefq = false, askbefq_options;
 struct timeval start, stop;
 int ertek[10], bpmInt, i = 0, sum, a;
 float millisec;
+
+wchar_t choice;
 
 static int compare (const void *p1, const void *p2) {
     return *(int*)p1 - *(int*)p2;
@@ -28,6 +31,7 @@ static int compare (const void *p1, const void *p2) {
 
 int main (int argc, const char *argv[]) 
 {
+    setlocale(LC_ALL, "");
     // Initialize
     init_screen();
     init_checkTerminalHasColors();
@@ -64,7 +68,6 @@ int main (int argc, const char *argv[])
     // Menu loop
     while(1)
     {
-        //vege:
         draw_menu(win, highlight, choices, xWinMax, 4);
         choice = wgetch(win);
         input(choice, &highlight);
@@ -241,17 +244,6 @@ int main (int argc, const char *argv[])
                 keypad(bpm, true);
 
                 wgetch(bpm);
-                /*for(i = 9; i > -1; i--)
-                {
-                    if(input_bpm(start, stop, &millisec, &bpmInt, ertek, i, bpm))
-                    {
-                        input_backToMain(bpm, win, xMax);
-                        highlight = 0;
-                        // TODO megmutatni a Bandinak
-                        goto vege;
-                    }
-                    mvwprintw(bpm, 4, 7, "SZAMOLUNK! (%d)", i);
-                }*/
                 if(!input_fillBpmArray(&i, start, stop, &millisec, &bpmInt, &ertek, bpm))
                 {               
                     i = 0;

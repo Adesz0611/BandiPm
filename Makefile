@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -lncurses -I.
+CFLAGS = -Wall -lncursesw -I.
 PROGNAME = bandipm
 all: $(PROGNAME)
 
