@@ -1,5 +1,11 @@
-/* Created by Adesz */
-#include "main.h"
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
+#include <stdbool.h>
+#include <sys/time.h>
+
+#include "curses.h"
 
 void input(int choice, int *highlight);
 void input_quitmenu(int choice, int *highlight);

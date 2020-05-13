@@ -1,6 +1,10 @@
-/* Created by Adesz */
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
 #include "input.h"
 #include "draw.h"
+#include "logo.h"
 #include <sys/time.h>
 #include <stdint.h>
 
@@ -114,7 +118,7 @@ void input_backToMain(WINDOW *actualWin, WINDOW *mainWin, int main_xMax)
 {
     wclear(actualWin);
     wrefresh(actualWin);
-    draw_logo(mainWin, main_xMax);
+    logo_draw(mainWin, main_xMax);
     box(mainWin, 0, 0);
     refresh();
 }

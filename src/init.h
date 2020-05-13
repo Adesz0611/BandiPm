@@ -1,12 +1,11 @@
-/* Created by Adesz */
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
+#pragma once
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
+#include <stdbool.h>
 
-#include <ncurses.h>
-
-void init_screen(void);
 void init_checkTerminalHasColors(void);
 void init_cleanup(void);
 void init_checkTerminalSize(int yMax, int xMax);

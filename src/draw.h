@@ -1,6 +1,8 @@
-/* Created by Adesz */
-#include "main.h"
-
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
+#include "curses.h"
 #ifdef __unix__
 #include <signal.h>
 #endif

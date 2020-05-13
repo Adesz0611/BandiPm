@@ -1,13 +1,12 @@
-/* Created by Adesz */
-#include "init.h"
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
+#include <stdio.h>
+#include <stdlib.h>
 
-void init_screen(void)
-{
-    initscr();
-    cbreak();
-    noecho();
-    curs_set(0);
-}
+#include "init.h"
+#include "curses.h"
 
 void init_checkTerminalHasColors(void)
 {

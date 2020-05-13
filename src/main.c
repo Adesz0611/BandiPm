@@ -3,13 +3,19 @@
  *        <adesz@jss.hu>
  *
  */
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <locale.h>
+
 #include "init.h"
 #include "draw.h"
 #include "input.h"
 #include "types.h"
-#include <stdbool.h>
-#include <locale.h>
+#include "curses.h"
+#include "logo.h"
 
 #ifdef __unix__
 #include <signal.h>
@@ -52,7 +58,7 @@ int main (int argc, const char *argv[])
 #endif
 
     // Initialize
-    init_screen();
+    curses_init();
     init_checkTerminalHasColors();
 
     // Config file
@@ -74,7 +80,7 @@ int main (int argc, const char *argv[])
     getmaxyx(win, yWinMax, xWinMax);
 
     logo.filename = "logo.txt";
-    draw_logo(win, xMax);
+    logo_draw(win, xMax);
     draw_creator(win, yWinMax, xWinMax, copyright);
 
     // Draw window border

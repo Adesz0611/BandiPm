@@ -1,26 +1,11 @@
-/* Created by Adesz */
-#include "draw.h"
+/*
+ *  (C) 2020 Adam Hunyadvari
+ *      <adesz@jss.hu>
+ */
 #include <stdint.h>
-
-void draw_logo(WINDOW *win, int xMax)
-{
-    FILE *file = fopen(logo.filename, "r");
-    if(file != NULL)
-    {
-        int row = 3;
-        char line[128];
-        while (fgets(line, sizeof line, file) != NULL)
-        {
-            mvwprintw(win, row, xMax / 2 - 62 / 2, "%s", line);
-            row++;
-        }
-        fclose(file);
-    }
-    else
-    {
-        perror(logo.filename);
-    }
-}
+#include <string.h>
+#include "draw.h"
+#include "curses.h"
 
 void draw_resize(int signr)
 {
