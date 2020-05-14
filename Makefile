@@ -8,6 +8,7 @@ OBJ+=src/draw.o
 OBJ+=src/input.o
 OBJ+=src/curses.o
 OBJ+=src/logo.o
+OBJ+=src/version.o
 
 all: $(PROGNAME)
 

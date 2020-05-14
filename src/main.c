@@ -16,6 +16,7 @@
 #include "types.h"
 #include "curses.h"
 #include "logo.h"
+#include "version.h"
 
 #ifdef __unix__
 #include <signal.h>
@@ -39,6 +40,7 @@ float millisec;
 
 wchar_t choice;
 
+static void usage(void);
 static void emergency_exit(int signr);
 static int compare (const void *p1, const void *p2) {
     return *(int*)p1 - *(int*)p2;
@@ -48,6 +50,22 @@ int main (int argc, const char *argv[])
 {
     setlocale(LC_ALL, "");
     atexit(clean);
+
+    
+    if(argc > 1)
+    {
+        if(strcmp(argv[1], "--version") == 0)
+        {
+            version_print();
+            exit(EXIT_FAILURE);
+        }
+
+        else if(strcmp(argv[1], "--help") == 0)
+        {
+            usage();
+            exit(EXIT_FAILURE);
+        }
+    }
 
 #ifdef __unix__
 #ifdef SIGWINCH
@@ -64,7 +82,7 @@ int main (int argc, const char *argv[])
     // Config file
     FILE *conf = malloc(sizeof(*conf));
 
-    //Load the file to the buffer
+    // Load the file to the buffer
     init_configFile(conf, &askbefq, &beatbutton);
     askbefq_options = askbefq;
     beatbutton_options = beatbutton;
@@ -303,6 +321,17 @@ int main (int argc, const char *argv[])
     // Clear and close
     init_cleanup();
     return 0;
+}
+
+static void usage(void)
+{
+    printf("Usage: %s [options]\n", PROGRAM_NAME);
+    fputs(
+        "Options:\n"
+        "          --help     print this help and exit\n"
+        "          --version  print version and exit\n"
+        ,stdout
+    );
 }
 
 static void emergency_exit(int signr)

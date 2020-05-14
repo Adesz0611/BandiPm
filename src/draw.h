@@ -2,6 +2,9 @@
  *  (C) 2020 Adam Hunyadvari
  *      <adesz@jss.hu>
  */
+#ifndef DRAW_H
+#define DRAW_H
+
 #include "curses.h"
 #ifdef __unix__
 #include <signal.h>
@@ -19,3 +22,5 @@ void draw_menu(WINDOW *win, int highlight, char *choices[], int xWinMax, int cho
 void draw_quitmenu(WINDOW *win, int highlight, int yAsk, int xAsk);
 void draw_options(WINDOW *win, int highlight, bool askbefq, int yMax, int xMax, int beatbutton_options);
 void draw_creator(WINDOW *win, int yWinMax, int xWinMax, char *copyright);
+
+#endif /* DRAW_H */
