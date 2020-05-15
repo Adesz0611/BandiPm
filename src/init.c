@@ -48,8 +48,3 @@ void init_configFile(FILE *conf, bool *askbefq, int *beatbutton)
     fread(beatbutton, sizeof(*beatbutton), 1, conf);
     fclose(conf);
 }
-
-void clean(void)
-{
-    endwin();
-}

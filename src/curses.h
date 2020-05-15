@@ -12,3 +12,5 @@ typedef struct {
 Curses *curses;
 
 void curses_init(void);
+int curses_checkTerminalHasColors(void);
+void curses_clean(void);

@@ -29,7 +29,7 @@
 #define SUCCESS 0
 #define FAIL -1
 
-int yMax, xMax, yWinMax, xWinMax, yAsk, xAsk;
+int yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
 int highlight = 0, beatbutton = ENTER, beatbutton_options;
@@ -41,6 +41,7 @@ float millisec;
 wchar_t choice;
 
 static void usage(void);
+static void clean(void);
 static void emergency_exit(int signr);
 static int compare (const void *p1, const void *p2) {
     return *(int*)p1 - *(int*)p2;
@@ -51,7 +52,7 @@ int main (int argc, const char *argv[])
     setlocale(LC_ALL, "");
     atexit(clean);
 
-    
+    // Arguments handling
     if(argc > 1)
     {
         if(strcmp(argv[1], "--version") == 0)
@@ -75,9 +76,16 @@ int main (int argc, const char *argv[])
     signal(SIGTERM, emergency_exit);
 #endif
 
-    // Initialize
+    // Initialize curses
     curses_init();
-    init_checkTerminalHasColors();
+    
+    // Check terminal has colors
+    if(!curses_checkTerminalHasColors())
+    {
+        clean();
+        printf("Terminal does not support colors!\n");
+        exit(EXIT_FAILURE);
+    }
 
     // Config file
     FILE *conf = malloc(sizeof(*conf));
@@ -88,17 +96,17 @@ int main (int argc, const char *argv[])
     beatbutton_options = beatbutton;
 
     // Return the max size of terminal
-    getmaxyx(stdscr, yMax, xMax);
+    getmaxyx(stdscr, curses->termY, curses->termX);
 
     // Check terminal size
-    init_checkTerminalSize(yMax, xMax);
+    init_checkTerminalSize(curses->termY, curses->termX);
 
     // Create main window
-    WINDOW *win = newwin(yMax-2, xMax-6, 1, 3);
+    WINDOW *win = newwin(curses->termY-2, curses->termX-6, 1, 3);
     getmaxyx(win, yWinMax, xWinMax);
 
     logo.filename = "logo.txt";
-    logo_draw(win, xMax);
+    logo_draw(win, curses->termX);
     draw_creator(win, yWinMax, xWinMax, copyright);
 
     // Draw window border
@@ -122,7 +130,7 @@ int main (int argc, const char *argv[])
                 // Ask before quit
                 if(askbefq)
                 {
-                    WINDOW *kilepes = newwin(yMax - 12, xMax - 16, 6, 8);
+                    WINDOW *kilepes = newwin(curses->termY - 12, curses->termX - 16, 6, 8);
                     box(kilepes, 0, 0);
                     refresh();
                     wrefresh(kilepes);
@@ -147,7 +155,7 @@ int main (int argc, const char *argv[])
                             // If press "Nem"
                             else if(highlight == 1)
                             {
-                                input_backToMain(kilepes, win, xMax);
+                                input_backToMain(kilepes, win, curses->termX);
                                 highlight = 3;
                                 break;
                             }
@@ -163,18 +171,18 @@ int main (int argc, const char *argv[])
             // If press "About"
             else if(choices[highlight] == choices[2])
             {
-                WINDOW *about_win = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
+                WINDOW *about_win = newwin((int)(curses->termY / 2), (int)(curses->termX / 2), (int)(curses->termY / 4), (int)(curses->termX / 4));
                 box(about_win, 0, 0);
                 char *about_text = "Simple BPM program";
                 
                 // Draw "About" title
                 wattron(about_win, A_REVERSE);
-                mvwprintw(about_win, 0, (int)(xMax / 2 / 2 - strlen(" About ") / 2), " About ");
+                mvwprintw(about_win, 0, (int)(curses->termX / 2 / 2 - strlen(" About ") / 2), " About ");
                 wattroff(about_win, A_REVERSE);
 
                 // Draw the about text
-                mvwprintw(about_win, 2, (int)(xMax / 2 / 2 - strlen(about_text) / 2), about_text);
-                mvwprintw(about_win, 4, (int)(xMax / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
+                mvwprintw(about_win, 2, (int)(curses->termX / 2 / 2 - strlen(about_text) / 2), about_text);
+                mvwprintw(about_win, 4, (int)(curses->termX / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
 
                 wrefresh(about_win);
                 refresh();
@@ -183,7 +191,7 @@ int main (int argc, const char *argv[])
                     choice = wgetch(about_win);
                     if(choice == KEY_Q)
                     {
-                        input_backToMain(about_win, win, xMax);
+                        input_backToMain(about_win, win, curses->termX);
                         break;
                     }
                 }
@@ -192,16 +200,16 @@ int main (int argc, const char *argv[])
             // If press "Options"
             else if(choices[highlight] == choices[1])
             {
-                WINDOW *options_win = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
+                WINDOW *options_win = newwin((int)(curses->termY / 2), (int)(curses->termX / 2), (int)(curses->termY / 4), (int)(curses->termX / 4));
                 box(options_win, 0, 0);
 
                 // Draw "Options" title
                 wattron(options_win, A_REVERSE);
-                mvwprintw(options_win, 0, (int)(xMax / 2 / 2 - strlen(" Options ") / 2), " Options ");
+                mvwprintw(options_win, 0, (int)(curses->termX / 2 / 2 - strlen(" Options ") / 2), " Options ");
                 wattroff(options_win, A_REVERSE);
 
                 // Draw the "options" text
-                mvwprintw(options_win, 2, (int)(xMax / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
+                mvwprintw(options_win, 2, (int)(curses->termX / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
                 mvwprintw(options_win, 4, 3, "Ask before quit:");
                 mvwprintw(options_win, 5, 3, "Beat button:");
 
@@ -217,7 +225,7 @@ int main (int argc, const char *argv[])
 
                 while(1)
                 {
-                    draw_options(options_win, highlight, askbefq_options, (int)(yMax / 2), (int)(xMax / 2), beatbutton_options);
+                    draw_options(options_win, highlight, askbefq_options, (int)(curses->termY / 2), (int)(curses->termX / 2), beatbutton_options);
                     choice = wgetch(options_win);
                     input_options(choice, &highlight, &askbefq_options);
 
@@ -233,7 +241,7 @@ int main (int argc, const char *argv[])
                             fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
                             fclose(conf);
 
-                            input_backToMain(options_win, win, xMax);
+                            input_backToMain(options_win, win, curses->termX);
                             highlight = 1;
                             break;
 
@@ -242,7 +250,7 @@ int main (int argc, const char *argv[])
                         // If press "Quit"
                         else if(highlight == 3)
                         {
-                            input_backToMain(options_win, win, xMax);
+                            input_backToMain(options_win, win, curses->termX);
                             highlight = 1;
                             break;
                         }
@@ -250,9 +258,9 @@ int main (int argc, const char *argv[])
                         // If press "Beatbutton"
                         else if(highlight == 1)
                         {
-                            WINDOW *bb = newwin((int)(yMax * 0.3), (int)(xMax * 0.3), (int)(yMax * 0.35), (int)(xMax * 0.35));
+                            WINDOW *bb = newwin((int)(curses->termY * 0.3), (int)(curses->termX * 0.3), (int)(curses->termY * 0.35), (int)(curses->termX * 0.35));
                             box(bb, 0, 0);
-                            mvwprintw(bb, 1, (int)(xMax * 0.3 / 2 - strlen("Press any key...") / 2), "Press any key...");
+                            mvwprintw(bb, 1, (int)(curses->termX * 0.3 / 2 - strlen("Press any key...") / 2), "Press any key...");
                             wrefresh(bb);
                             refresh();
                             beatbutton_options = wgetch(bb);
@@ -262,7 +270,7 @@ int main (int argc, const char *argv[])
                     }
                         else if(choice == KEY_Q)
                         {
-                            input_backToMain(options_win, win, xMax);
+                            input_backToMain(options_win, win, curses->termX);
                             highlight = 1;
                             break;
                         }
@@ -272,16 +280,16 @@ int main (int argc, const char *argv[])
             // If you press "Start"
             else if(choices[highlight] == choices[0])
             {
-                WINDOW *bpm = newwin((int)(yMax / 2), (int)(xMax / 2), (int)(yMax / 4), (int)(xMax / 4));
+                WINDOW *bpm = newwin((int)(curses->termY / 2), (int)(curses->termX / 2), (int)(curses->termY / 4), (int)(curses->termX / 4));
                 box(bpm, 0, 0);
  
                 // Draw "BPM" window title
                 wattron(bpm, A_REVERSE);
-                mvwprintw(bpm, 0, (int)(xMax / 2 / 2 - strlen(" BPM ") / 2), " BPM ");
+                mvwprintw(bpm, 0, (int)(curses->termX / 2 / 2 - strlen(" BPM ") / 2), " BPM ");
                 wattroff(bpm, A_REVERSE);
 
                 // Draw window content
-                mvwprintw(bpm, 2, (int)(xMax / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
+                mvwprintw(bpm, 2, (int)(curses->termX / 2 / 2 - strlen("Press 'Q' to quit") / 2), "Press 'Q' to quit");
                 mvwprintw(bpm, 4, 2, "BPM: ");
 
                 keypad(bpm, true);
@@ -294,7 +302,7 @@ int main (int argc, const char *argv[])
                     {    
                         if(input_bpm(start, stop, &millisec, &bpmInt, &ertek, i, bpm))
                         {
-                            input_backToMain(bpm, win, xMax);
+                            input_backToMain(bpm, win, curses->termX);
                             highlight = 0;
                             break;
                         }
@@ -311,7 +319,7 @@ int main (int argc, const char *argv[])
 
                 else
                 {
-                    input_backToMain(bpm, win, xMax);
+                    input_backToMain(bpm, win, curses->termX);
                     highlight = 0;
                 }
             }
@@ -337,4 +345,9 @@ static void usage(void)
 static void emergency_exit(int signr)
 {
     exit(EXIT_FAILURE);
+}
+
+static void clean(void)
+{
+    curses_clean();
 }
