@@ -26,6 +26,11 @@ int curses_checkTerminalHasColors(void)
     return has_colors();
 }
 
+int curses_checkTerminalSize(void)
+{
+    return (curses->termY > 20 && curses->termX > 75);
+}
+
 void curses_resize(int signr)
 {
     

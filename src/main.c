@@ -82,8 +82,8 @@ int main (int argc, const char *argv[])
     // Check terminal has colors
     if(!curses_checkTerminalHasColors())
     {
-        clean();
-        printf("Terminal does not support colors!\n");
+        curses_clean();
+        fprintf(stderr, "Terminal does not support colors!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -99,7 +99,12 @@ int main (int argc, const char *argv[])
     getmaxyx(stdscr, curses->termY, curses->termX);
 
     // Check terminal size
-    init_checkTerminalSize(curses->termY, curses->termX);
+    if(!curses_checkTerminalSize())
+    {
+        curses_clean();
+        fprintf(stderr, "Terminal size is less than the minimum size!\n");
+        exit(EXIT_FAILURE);
+    }
 
     // Create main window
     WINDOW *win = newwin(curses->termY-2, curses->termX-6, 1, 3);
@@ -150,7 +155,7 @@ int main (int argc, const char *argv[])
                         {
                             // If press "Igen"
                             if(highlight == 0)
-                                init_cleanup();
+                                exit(EXIT_SUCCESS);
 
                             // If press "Nem"
                             else if(highlight == 1)
@@ -164,7 +169,7 @@ int main (int argc, const char *argv[])
                 }
                 else
                 {
-                    init_cleanup();
+                    exit(EXIT_SUCCESS);
                 }
             }
 

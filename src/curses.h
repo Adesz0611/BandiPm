@@ -13,4 +13,5 @@ Curses *curses;
 
 void curses_init(void);
 int curses_checkTerminalHasColors(void);
+int curses_checkTerminalSize(void);
 void curses_clean(void);
