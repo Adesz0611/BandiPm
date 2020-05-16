@@ -31,10 +31,15 @@ int curses_checkTerminalSize(void)
     return (curses->termY > 20 && curses->termX > 75);
 }
 
+#ifdef __unix__
+#ifdef SIGWINCH
 void curses_resize(int signr)
 {
-    
+    (void)signr;
+    getmaxyx(stdscr, curses->termY, curses->termX);
 }
+#endif
+#endif
 
 void curses_clean()
 {

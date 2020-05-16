@@ -7,12 +7,6 @@
 #include "draw.h"
 #include "curses.h"
 
-void draw_resize(int signr)
-{
-    
-    //exit(EXIT_FAILURE);    
-}
-
 void draw_printMiddle(char *text, int y, WINDOW *win, int xWinMax)
 {
     mvwprintw(win, y, xWinMax / 2 - strlen(text) / 2, text);
@@ -35,14 +29,14 @@ void draw_menu(WINDOW *win, int highlight, char *choices[], int xWinMax, int cho
 
 void draw_quitmenu(WINDOW *win, int highlight, int yAsk, int xAsk)
 {
-    // IF highlighted is 0, so 'Igen'
+    // IF highlighted is 0, so 'Yes'
     if(!highlight)
         wattron(win, A_REVERSE);
-    mvwprintw(win, yAsk - 2, xAsk - 4 - 2 - 5, "Igen");
+    mvwprintw(win, yAsk - 2, xAsk - 4 - 2 - 5, "Yes");
     wattroff(win, A_REVERSE);
     if(highlight)
         wattron(win, A_REVERSE);
-    mvwprintw(win, yAsk - 2, xAsk - 3 - 2, "Nem");
+    mvwprintw(win, yAsk - 2, xAsk - 3 - 2, "No");
     wattroff(win, A_REVERSE);
 }
 

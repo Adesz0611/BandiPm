@@ -70,7 +70,7 @@ int main (int argc, const char *argv[])
 
 #ifdef __unix__
 #ifdef SIGWINCH
-    signal(SIGWINCH, draw_resize);
+    signal(SIGWINCH, curses_resize);
 #endif
     signal(SIGHUP, emergency_exit);
     signal(SIGTERM, emergency_exit);
@@ -140,7 +140,7 @@ int main (int argc, const char *argv[])
                     refresh();
                     wrefresh(kilepes);
 
-                    mvwprintw(kilepes, 1, 2, "Biztosan ki szeretne lépni?");
+                    mvwprintw(kilepes, 1, 2, "Are you sure to want to quit?");
                     getmaxyx(kilepes, yAsk, xAsk);
                     keypad(kilepes, true);
 
@@ -332,7 +332,7 @@ int main (int argc, const char *argv[])
     }
 
     // Clear and close
-    init_cleanup();
+    exit(EXIT_SUCCESS);
     return 0;
 }
 
@@ -349,6 +349,7 @@ static void usage(void)
 
 static void emergency_exit(int signr)
 {
+    (void)signr;
     exit(EXIT_FAILURE);
 }
 

@@ -1,3 +1,4 @@
+# Makefile for BandiPm
 PROGNAME = bandipm
 CC = gcc
 CFLAGS = -Wall -Wextra -lncursesw

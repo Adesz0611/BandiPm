@@ -83,7 +83,7 @@ int input_fillBpmArray(int *i, struct timeval start, struct timeval stop, float 
     {
         if(input_bpm(start, stop, millisec, bpmInt, ertek, *i, bpm_win))
             return 1;
-        mvwprintw(bpm_win, 4, 7, "SZAMOLUNK! (%d)", *i);
+        mvwprintw(bpm_win, 4, 7, "CALCULATING! (%d)", *i);
     }
 
     return 0;
