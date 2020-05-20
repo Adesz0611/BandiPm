@@ -10,30 +10,23 @@
 #include <stdbool.h>
 #include <locale.h>
 
-#include "init.h"
 #include "draw.h"
 #include "input.h"
 #include "types.h"
 #include "curses.h"
 #include "logo.h"
 #include "version.h"
+#include "config.h"
+#include "defs.h"
 
 #ifdef __unix__
 #include <signal.h>
 #endif
 
-#define ENTER 10
-#define KEY_Q 113
-#define ARRAY_SIZE(x) sizeof(x) / sizeof(x[0])
-
-#define SUCCESS 0
-#define FAIL -1
-
 int yWinMax, xWinMax, yAsk, xAsk;
 char *choices[] = { "  Start  ", " Options ", "  About  ", "   Quit  " };
 char *copyright = "Created by Adesz";
-int highlight = 0, beatbutton = ENTER, beatbutton_options;
-bool askbefq = false, askbefq_options;
+int highlight = 0;
 struct timeval start, stop;
 int ertek[10], bpmInt, i = 0, sum, a;
 float millisec;
@@ -88,13 +81,9 @@ int main (int argc, const char *argv[])
     }
 
     // Config file
-    FILE *conf = malloc(sizeof(*conf));
-
-    // Load the file to the buffer
-    init_configFile(conf, &askbefq, &beatbutton);
-    askbefq_options = askbefq;
-    beatbutton_options = beatbutton;
-
+    config_init();
+    config_load();
+ 
     // Return the max size of terminal
     getmaxyx(stdscr, curses->termY, curses->termX);
 
@@ -133,7 +122,7 @@ int main (int argc, const char *argv[])
             if(choices[highlight] == choices[3])
             {
                 // Ask before quit
-                if(askbefq)
+                if(config->askbefq_file)
                 {
                     WINDOW *kilepes = newwin(curses->termY - 12, curses->termX - 16, 6, 8);
                     box(kilepes, 0, 0);
@@ -222,29 +211,27 @@ int main (int argc, const char *argv[])
                 keypad(options_win, true);
 
                 // Buffer = config's value
-                askbefq_options = askbefq;
-                beatbutton_options = beatbutton;
+                config->askbefq_buffer = config->askbefq_file;
+                config->beatbutton_buffer = config->beatbutton_file;
 
                 wrefresh(options_win);
                 refresh();
 
                 while(1)
                 {
-                    draw_options(options_win, highlight, askbefq_options, (int)(curses->termY / 2), (int)(curses->termX / 2), beatbutton_options);
+                    draw_options(options_win, highlight, config->askbefq_buffer, (int)(curses->termY / 2), (int)(curses->termX / 2), config->beatbutton_buffer);
                     choice = wgetch(options_win);
-                    input_options(choice, &highlight, &askbefq_options);
+                    input_options(choice, &highlight, &config->askbefq_buffer);
 
                     if(choice == ENTER)
                     {
                         // If press "Apply"
                         if(highlight == 2)
                         {
-                            askbefq = askbefq_options;
-                            beatbutton = beatbutton_options;
-                            conf = fopen("bpmprog.dat", "wb");
-                            fwrite(&askbefq, sizeof(askbefq), 1, conf);
-                            fwrite(&beatbutton, sizeof(beatbutton), 1, conf);
-                            fclose(conf);
+                            config->askbefq_file = config->askbefq_buffer;
+                            config->beatbutton_file = config->beatbutton_buffer;
+
+                            config_save();
 
                             input_backToMain(options_win, win, curses->termX);
                             highlight = 1;
@@ -268,7 +255,7 @@ int main (int argc, const char *argv[])
                             mvwprintw(bb, 1, (int)(curses->termX * 0.3 / 2 - strlen("Press any key...") / 2), "Press any key...");
                             wrefresh(bb);
                             refresh();
-                            beatbutton_options = wgetch(bb);
+                            config->beatbutton_buffer = wgetch(bb);
                             wclear(bb);
                             wrefresh(bb);
                         }
